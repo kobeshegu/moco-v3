@@ -116,6 +116,9 @@ parser.add_argument('--warmup-epochs', default=10, type=int, metavar='N',
                     help='number of warmup epochs')
 parser.add_argument('--crop-min', default=0.08, type=float,
                     help='minimum scale for random cropping (default: 0.08)')
+parser.add_argument('--save_dir', default="/mnt/lustre/yangmengping/mocov3/R50", type=str,
+                    help='save dir')
+            
 
 
 def main():
@@ -314,7 +317,7 @@ def main_worker(gpu, ngpus_per_node, args):
                     'state_dict': model.state_dict(),
                     'optimizer' : optimizer.state_dict(),
                     'scaler': scaler.state_dict(),
-                }, is_best=False, filename='checkpoint_%04d.pth.tar' % epoch)
+                }, is_best=False, filename='checkpoint_%04d.pth.tar'%(epoch), save_dir=args.save_dir)
 
     if args.rank == 0:
         summary_writer.close()
@@ -371,8 +374,8 @@ def train(train_loader, model, optimizer, scaler, summary_writer, epoch, args):
             progress.display(i)
 
 
-def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
-    save_file = os.path.join("/mnt/lustre/yangmengping/mocov3/VIT_Small",filename)
+def save_checkpoint(state, is_best, filename, save_dir):
+    save_file = os.path.join(save_dir,filename)
     torch.save(state, save_file)
     if is_best:
         shutil.copyfile(save_file, 'model_best.pth.tar')
