@@ -119,20 +119,28 @@ parser.add_argument('--crop-min', default=0.08, type=float,
 parser.add_argument('--save_dir', default="/mnt/lustre/yangmengping/mocov3/R50", type=str,
                     help='save dir')
             
-
+def seed_everything(seed):
+    torch.manual_seed(seed)       # Current CPU
+    torch.cuda.manual_seed(seed)  # Current GPU
+    np.random.seed(seed)          # Numpy module
+    random.seed(seed)             # Python random module
+    torch.backends.cudnn.benchmark = False    # Close optimization
+    torch.backends.cudnn.deterministic = True # Close optimization
+    torch.cuda.manual_seed_all(seed) # All GPU (Optional)
 
 def main():
     args = parser.parse_args()
 
     if args.seed is not None:
-        random.seed(args.seed)
-        torch.manual_seed(args.seed)
-        cudnn.deterministic = True
-        warnings.warn('You have chosen to seed training. '
-                      'This will turn on the CUDNN deterministic setting, '
-                      'which can slow down your training considerably! '
-                      'You may see unexpected behavior when restarting '
-                      'from checkpoints.')
+        seed_everything(args.seed)
+        # random.seed(args.seed)
+        # torch.manual_seed(args.seed)
+        # cudnn.deterministic = True
+        # warnings.warn('You have chosen to seed training. '
+        #               'This will turn on the CUDNN deterministic setting, '
+        #               'which can slow down your training considerably! '
+        #               'You may see unexpected behavior when restarting '
+        #               'from checkpoints.')
 
     if args.gpu is not None:
         warnings.warn('You have chosen a specific GPU. This will completely '
